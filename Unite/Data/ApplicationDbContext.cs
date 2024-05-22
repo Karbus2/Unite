@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Unite.Models;
 
 namespace Unite.Data
@@ -15,14 +16,30 @@ namespace Unite.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<UserEvent> UserEvents { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
+        void OnEntityStateChanged(object sender, EntityStateChangedEventArgs e)
+        {
+            if (e.NewState == EntityState.Modified && e.Entry.Entity is IDbOperationTS entity)
+                entity.UpdatedDate = DateTime.UtcNow;
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getutcdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getutcdate()");
+            });
             modelBuilder.Entity<Event>(entity =>
             {
                 entity.Property(e => e.Scope)
                       .HasConversion<string>();
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getutcdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getutcdate()");
             });
             modelBuilder.Entity<UserEvent>(entity =>
             {
@@ -39,6 +56,10 @@ namespace Unite.Data
                       .HasForeignKey(e => e.EventId)
                       .IsRequired()
                       .OnDelete(DeleteBehavior.NoAction);
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getutcdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getutcdate()");
             });
             modelBuilder.Entity<Friendship>(entity =>
             {
@@ -55,6 +76,10 @@ namespace Unite.Data
                       .HasForeignKey(e => e.RightSideId)
                       .IsRequired()
                       .OnDelete(DeleteBehavior.NoAction);
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getutcdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getutcdate()");
             });
         }
     }

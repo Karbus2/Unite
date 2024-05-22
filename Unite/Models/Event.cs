@@ -4,7 +4,7 @@ using Unite.Models.CustomAttributes;
 
 namespace Unite.Models
 {
-    public class Event
+    public class Event : IDbOperationTS
     {
         public enum EventScope
         {
@@ -27,7 +27,7 @@ namespace Unite.Models
         public string? Description { get; set; }
         [Range(2, int.MaxValue)]
         public int? Size { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } 
+        public DateTime UpdatedDate { get; set; } 
     }
 }
