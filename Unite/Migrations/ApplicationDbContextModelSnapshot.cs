@@ -280,7 +280,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("Unite.Models.Friendship", b =>
@@ -309,7 +309,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("RightSideId");
 
-                    b.ToTable("Friendships");
+                    b.ToTable("Friendships", (string)null);
                 });
 
             modelBuilder.Entity("Unite.Models.UserEvent", b =>
@@ -338,7 +338,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("UserEvents");
+                    b.ToTable("UserEvents", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

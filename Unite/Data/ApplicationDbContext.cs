@@ -16,11 +16,11 @@ namespace Unite.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<UserEvent> UserEvents { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
-        void OnEntityStateChanged(object sender, EntityStateChangedEventArgs e)
-        {
-            if (e.NewState == EntityState.Modified && e.Entry.Entity is IDbOperationTS entity)
-                entity.UpdatedDate = DateTime.UtcNow;
-        }
+        //void OnEntityStateChanged(object sender, EntityStateChangedEventArgs e)
+        //{
+        //    if (e.NewState == EntityState.Modified && e.Entry.Entity is IDbOperationTS entity)
+        //        entity.UpdatedDate = DateTime.UtcNow;
+        //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -50,12 +50,12 @@ namespace Unite.Data
                       .WithMany(d => d.Events)
                       .HasForeignKey(e => e.ParticipantId)
                       .IsRequired()
-                      .OnDelete(DeleteBehavior.NoAction);
+                      .OnDelete(DeleteBehavior.ClientCascade);
                 entity.HasOne(e => e.Event)
                       .WithMany(d => d.Participants)
                       .HasForeignKey(e => e.EventId)
                       .IsRequired()
-                      .OnDelete(DeleteBehavior.NoAction);
+                      .OnDelete(DeleteBehavior.ClientCascade);
                 entity.Property(e => e.CreatedDate)
                       .HasDefaultValueSql("getutcdate()");
                 entity.Property(e => e.UpdatedDate)

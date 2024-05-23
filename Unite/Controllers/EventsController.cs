@@ -29,8 +29,11 @@ namespace Unite.Controllers
         // GET: Events
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Events.Include(e => e.Admin);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = _context.Events.Include(e => e.Participants);
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            List<Event>? events = await applicationDbContext.Where(e => e.Scope == Event.EventScope.Public || e.Participants.Any(p => p.ParticipantId == userId)).ToListAsync();
+            
+            return View(events);
         }
 
         // GET: Events/Details/5
@@ -43,8 +46,11 @@ namespace Unite.Controllers
 
             var @event = await _context.Events
                 .Include(e => e.Admin)
+                .Include(e => e.Participants)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (@event == null)
+
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (@event == null || (@event.Scope != Event.EventScope.Public && !@event.Participants.Any(p => p.ParticipantId == userId)))
             {
                 return NotFound();
             }
@@ -87,8 +93,11 @@ namespace Unite.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events.FindAsync(id);
-            if (@event == null)
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            var @event = await _context.Events.Include(e => e.Participants)
+                                              .SingleOrDefaultAsync(e => e.Id == id);
+            
+            if (@event == null || (@event.Scope != Event.EventScope.Public && !@event.Participants.Any(p => p.ParticipantId == userId)))
             {
                 return NotFound();
             }
@@ -146,10 +155,12 @@ namespace Unite.Controllers
                 return NotFound();
             }
 
+            Guid userId = new Guid(_userManager.GetUserId(User));
             var @event = await _context.Events
                 .Include(e => e.Admin)
+                .Include(e => e.Participants)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (@event == null)
+            if (@event == null || (@event.Scope != Event.EventScope.Public && !@event.Participants.Any(p => p.ParticipantId == userId)))
             {
                 return NotFound();
             }
@@ -162,8 +173,9 @@ namespace Unite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var @event = await _context.Events.FindAsync(id);
-            if (@event != null)
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            var @event = await _context.Events.Include(e => e.Participants).SingleOrDefaultAsync(e => e.Id == id);
+            if (@event != null && @event.AdminId == userId)
             {
                 _context.Events.Remove(@event);
             }
