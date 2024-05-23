@@ -20,6 +20,9 @@ html {
 body {
   margin-bottom: 60px;
 }
-a{
+buttons{
     text-align:center;
+}
+form{
+    text-align:center
 }
