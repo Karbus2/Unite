@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Unite.Models.Friendship>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LeftSide.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeftSide.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeftSide.CreatedDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.LeftSide.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LeftSide.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LeftSide.CreatedDate)
+            </td>
+            <td>
+                @Html.ActionLink("Add", "Add", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Profile", "Profile", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
