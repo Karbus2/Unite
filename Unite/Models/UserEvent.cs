@@ -1,6 +1,6 @@
 ﻿namespace Unite.Models
 {
-    public class UserEvent
+    public class UserEvent : IDbOperationTS
     {
         public enum UserEventRole
         {
@@ -13,7 +13,17 @@
         public Guid EventId { get; set; }
         public virtual Event? Event { get; set; }
         public UserEventRole Role { get; set; } = UserEventRole.Participant;
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } 
+        public DateTime UpdatedDate { get; set; }
+        public UserEvent() { }
+        public UserEvent(Guid participantId, Guid eventId) : this()
+        {
+            ParticipantId = participantId;
+            EventId = eventId;
+        }
+        public UserEvent(Guid participantId, Guid eventId, UserEventRole role) : this(participantId, eventId)
+        {
+            Role = role;
+        }
     }
 }

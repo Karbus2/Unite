@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Unite.Data;
 
@@ -11,9 +12,11 @@ using Unite.Data;
 namespace Unite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240522212436_GeneratingInsertUpdateTimestamps")]
+    partial class GeneratingInsertUpdateTimestamps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,7 +283,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("Unite.Models.Friendship", b =>
@@ -309,7 +312,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("RightSideId");
 
-                    b.ToTable("Friendships", (string)null);
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("Unite.Models.UserEvent", b =>
@@ -338,7 +341,7 @@ namespace Unite.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("UserEvents", (string)null);
+                    b.ToTable("UserEvents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
