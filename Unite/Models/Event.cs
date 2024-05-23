@@ -17,9 +17,9 @@ namespace Unite.Models
         public string Title { get; set; }
         public string Location { get; set; }
         public EventScope Scope { get; set; } = EventScope.FriendsOnly;
-        [IsLower<DateTime>(nameof(End))]
+        [IsLower<DateTime>(nameof(End)), FutureDate]
         public DateTime Start { get; set; }
-        [IsHigher<DateTime>(nameof(Start))]
+        [IsHigher<DateTime>(nameof(Start)), FutureDate]
         public DateTime End { get; set; }
         public Guid AdminId { get; set; }
         public virtual ApplicationUser? Admin { get; set; }
