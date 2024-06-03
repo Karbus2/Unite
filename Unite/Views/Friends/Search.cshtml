@@ -1,8 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Unite.Data
 
 @inject UserManager<ApplicationUser> _userManager
-@inject ApplicationDbContext _context
 @model IEnumerable<Unite.Models.ApplicationUser>
 
 @{
@@ -67,7 +65,7 @@
                             </button>
                         </form>
                     }
-                    else
+                    else if (item.Id != new Guid(_userManager.GetUserId(User)))
                     {
                         // Nieznajomy
                         <form asp-controller="Friends" asp-action="Add" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">

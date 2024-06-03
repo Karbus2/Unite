@@ -71,9 +71,14 @@ namespace Unite.Controllers
             {
                 return NotFound();
             }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (id == userId)
+            {
+                return BadRequest();
+            }
             Friendship friendship = new Friendship();
             friendship.State = Friendship.FriendshipState.ToAccept;
-            friendship.LeftSideId = new Guid(_userManager.GetUserId(User));
+            friendship.LeftSideId = userId;
             if(await _context.Users.SingleOrDefaultAsync(e => e.Id == id) == null)
             {
                 return NotFound();
@@ -86,45 +91,104 @@ namespace Unite.Controllers
             else
                 return RedirectToAction("Index", "Home");
         }
-
-        // GET: Friends/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        // POST: Friends/Accept/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Accept(Guid? id, string returnUrl)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (id == userId)
+            {
+                return BadRequest();
+            }
 
-            var friendship = await _context.Friendships
-                .Include(f => f.LeftSide)
-                .Include(f => f.RightSide)
-                .FirstOrDefaultAsync(m => m.LeftSideId == id);
+            Friendship? friendship = await _context.Friendships.SingleOrDefaultAsync(e => e.LeftSideId == id && e.RightSideId == userId && e.State == Friendship.FriendshipState.ToAccept);
             if (friendship == null)
             {
                 return NotFound();
             }
+            friendship.State = Friendship.FriendshipState.Accepted;
+            Friendship reversedFriendship = new Friendship();
+            reversedFriendship.State = friendship.State;
+            reversedFriendship.LeftSideId = friendship.RightSideId;
+            reversedFriendship.RightSideId = friendship.LeftSideId;
 
-            return View(friendship);
+            _context.Add(reversedFriendship);
+            await _context.SaveChangesAsync();
+
+            if (Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction("Index", "Home");
+        }
+
+        // POST: Friends/Cancel/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(Guid? id, string returnUrl)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (id == userId)
+            {
+                return BadRequest();
+            }
+
+            Friendship? friendship = await _context.Friendships.SingleOrDefaultAsync(e => e.LeftSideId == userId && e.RightSideId == id && e.State == Friendship.FriendshipState.ToAccept);
+            if (friendship == null)
+            {
+                return NotFound();
+            }
+            
+            _context.Remove(friendship);
+            await _context.SaveChangesAsync();
+
+            if (Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction("Index", "Home");
         }
 
         // POST: Friends/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> Delete(Guid? id, string returnUrl)
         {
-            var friendship = await _context.Friendships.FindAsync(id);
-            if (friendship != null)
+            if (id == null)
             {
-                _context.Friendships.Remove(friendship);
+                return NotFound();
+            }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (id == userId)
+            {
+                return BadRequest();
             }
 
+            Friendship? friendship = await _context.Friendships.SingleOrDefaultAsync(e => e.LeftSideId == userId && e.RightSideId == id && e.State == Friendship.FriendshipState.Accepted);
+            if (friendship == null)
+            {
+                return NotFound();
+            }
+            Friendship? reversedFriendship = await _context.Friendships.SingleOrDefaultAsync(e => e.LeftSideId == id && e.RightSideId == userId && e.State == Friendship.FriendshipState.Accepted);
+            if (reversedFriendship == null)
+            {
+                return NotFound();
+            }
+            _context.Remove(friendship);
+            _context.Remove(reversedFriendship);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool FriendshipExists(Guid id)
-        {
-            return _context.Friendships.Any(e => e.LeftSideId == id);
+            if (Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction("Index", "Home");
         }
     }
 }
