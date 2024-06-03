@@ -199,6 +199,54 @@ namespace Unite.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Join(Guid? id, string returnUrl)
+        {
+            if(id == null)
+            {
+                return NotFound();
+            }
+
+            Guid userId = new Guid(_userManager.GetUserId(User));
+
+            Event? @event = await _context.Events.Include(e => e.Participants)
+                                                 .AsSplitQuery()
+                                                 .Include(e => e.Admin)
+                                                 .ThenInclude(a => a!.LeftSideFriendships)
+                                                 .SingleOrDefaultAsync(e => e.Id == id); 
+
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            UserEvent? userEvent = await _context.UserEvents.SingleOrDefaultAsync(e => e.ParticipantId == userId && e.EventId == id);
+            if (userEvent != null)
+            {
+                if(userEvent.State == UserEvent.UserEventState.Accepted)
+                {
+                    return BadRequest();
+                }
+                userEvent.State = UserEvent.UserEventState.Accepted;
+            }
+            else if (@event.Scope == Event.EventScope.Public 
+             ||(@event.Admin!.LeftSideFriendships != null 
+             && @event.Scope == Event.EventScope.FriendsOnly 
+             && @event.Admin.LeftSideFriendships.Any(l => l.RightSideId == userId 
+                                                       && l.State == Friendship.FriendshipState.Accepted)))
+            {
+                userEvent = new UserEvent(userId, (Guid)id, UserEvent.UserEventRole.Participant, UserEvent.UserEventState.Accepted);
+                _context.UserEvents.Add(userEvent);
+            }
+            await _context.SaveChangesAsync();
+
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool EventExists(Guid id)
         {

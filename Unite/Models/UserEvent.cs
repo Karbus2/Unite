@@ -31,5 +31,9 @@
         {
             Role = role;
         }
+        public UserEvent(Guid participantId, Guid eventId, UserEventRole role, UserEventState state) : this(participantId, eventId, role)
+        {
+            State = state;
+        }
     }
 }
