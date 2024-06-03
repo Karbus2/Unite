@@ -45,6 +45,8 @@ namespace Unite.Data
             {
                 entity.Property(e => e.Role)
                       .HasConversion<string>();
+                entity.Property(e => e.State)
+                      .HasConversion<string>();
                 entity.HasKey(e => new {e.ParticipantId, e.EventId});
                 entity.HasOne(e => e.Participant)
                       .WithMany(d => d.Events)

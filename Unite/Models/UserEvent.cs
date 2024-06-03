@@ -8,11 +8,17 @@
             Moderator,
             Admin
         }
+        public enum UserEventState
+        {
+            Accepted,
+            Invited
+        }
         public Guid ParticipantId { get; set; }
         public virtual ApplicationUser? Participant { get; set; }
         public Guid EventId { get; set; }
         public virtual Event? Event { get; set; }
         public UserEventRole Role { get; set; } = UserEventRole.Participant;
+        public UserEventState State { get; set; } = UserEventState.Accepted;
         public DateTime CreatedDate { get; set; } 
         public DateTime UpdatedDate { get; set; }
         public UserEvent() { }
