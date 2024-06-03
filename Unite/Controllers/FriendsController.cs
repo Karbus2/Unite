@@ -53,7 +53,8 @@ namespace Unite.Controllers
         // GET: Friends/Search
         public async Task<IActionResult> Search(string? match)
         {
-            var applicationDbContext = _context.Users;
+            var applicationDbContext = _context.Users.Include(e => e.LeftSideFriendships)
+                                                     .Include(e => e.RightSideFriendships);
             if(match != null)
             {
                 return View(await applicationDbContext.Where(e => e.UserName.Contains(match)).ToListAsync());
@@ -61,78 +62,29 @@ namespace Unite.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // POST: Friends/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Friends/Add/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LeftSideId,RightSideId,State,CreatedDate,UpdatedDate")] Friendship friendship)
-        {
-            if (ModelState.IsValid)
-            {
-                friendship.LeftSideId = Guid.NewGuid();
-                _context.Add(friendship);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["LeftSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.LeftSideId);
-            ViewData["RightSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.RightSideId);
-            return View(friendship);
-        }
-
-        // GET: Friends/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Add(Guid? id, string returnUrl)
         {
             if (id == null)
             {
                 return NotFound();
             }
-
-            var friendship = await _context.Friendships.FindAsync(id);
-            if (friendship == null)
+            Friendship friendship = new Friendship();
+            friendship.State = Friendship.FriendshipState.ToAccept;
+            friendship.LeftSideId = new Guid(_userManager.GetUserId(User));
+            if(await _context.Users.SingleOrDefaultAsync(e => e.Id == id) == null)
             {
                 return NotFound();
             }
-            ViewData["LeftSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.LeftSideId);
-            ViewData["RightSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.RightSideId);
-            return View(friendship);
-        }
-
-        // POST: Friends/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("LeftSideId,RightSideId,State,CreatedDate,UpdatedDate")] Friendship friendship)
-        {
-            if (id != friendship.LeftSideId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(friendship);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FriendshipExists(friendship.LeftSideId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["LeftSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.LeftSideId);
-            ViewData["RightSideId"] = new SelectList(_context.Users, "Id", "Id", friendship.RightSideId);
-            return View(friendship);
+            friendship.RightSideId = (Guid)id;
+            _context.Add(friendship);
+            await _context.SaveChangesAsync();
+            if (Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+            else
+                return RedirectToAction("Index", "Home");
         }
 
         // GET: Friends/Delete/5

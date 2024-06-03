@@ -1,4 +1,9 @@
-﻿@model IEnumerable<Unite.Models.ApplicationUser>
+﻿@using Microsoft.AspNetCore.Identity
+@using Unite.Data
+
+@inject UserManager<ApplicationUser> _userManager
+@inject ApplicationDbContext _context
+@model IEnumerable<Unite.Models.ApplicationUser>
 
 @{
     ViewData["Title"] = "Search";
@@ -35,7 +40,35 @@
                     @Html.DisplayFor(modelItem => item.CreatedDate)
                 </td>
                 <td>
-                    @Html.ActionLink("Add", "Add", new { /* id=item.PrimaryKey */ }) |
+                    @if(item.RightSideFriendships.Any(r => r.LeftSideId == new Guid(_userManager.GetUserId(User)) && r.State == Friendship.FriendshipState.Accepted))
+                    {
+                        // Przyjaciel
+                        <form asp-controller="Friends" asp-action="Delete" asp-route-returnUrl="@Context.Request.Path" method="post" role="form">
+                            <button type="submit" name="delete" value="@item.Id">
+                                Usuń ze znajomych
+                            </button>
+                        </form>
+                        
+                    }
+                    else if (item.RightSideFriendships.Any(r => r.LeftSideId == new Guid(_userManager.GetUserId(User))))
+                    {
+                        // Zaproszony do znajomych
+                        <a asp-action="Cancel" asp-route-id="@item.Id">Anuluj zaproszenie</a>
+                    }
+                    else if (item.LeftSideFriendships.Any(l => l.RightSideId == new Guid(_userManager.GetUserId(User))))
+                    {
+                        // Zapraszający
+                        <a asp-action="Accept" asp-route-id="@item.Id">Zaakceptuj zaproszenie</a>
+                    }
+                    else
+                    {
+                        // Nieznajomy
+                        <form asp-controller="Friends" asp-action="Add" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-primary">
+                                Dodaj do znajomych
+                            </button>
+                        </form>
+                    }
                     @Html.ActionLink("Profile", "Profile", new { /* id=item.PrimaryKey */ })
                 </td>
             </tr>

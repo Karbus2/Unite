@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 
 @model IEnumerable<Unite.Models.Event>
-@inject UserManager<ApplicationUser> userManager
+@inject UserManager<ApplicationUser> _userManager
 
 @{
     ViewData["Title"] = "Index";
@@ -83,7 +83,7 @@
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                @if (item.AdminId == new Guid(userManager.GetUserId(User)))
+                @if (item.AdminId == new Guid(_userManager.GetUserId(User)))
                 {
                     <span>
                         | <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
