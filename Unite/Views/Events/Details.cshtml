@@ -1,13 +1,17 @@
-﻿@model Unite.Models.Event
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<ApplicationUser> _userManager
+
+@model Unite.Models.Event
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Szczegóły";
 }
 
 <h1>Details</h1>
 
 <div>
-    <h4>Event</h4>
+    <h4>Wydarzenie</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -73,6 +77,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (Model.AdminId == new Guid(_userManager.GetUserId(User)))
+    {
+        <span><a asp-action="Edit" asp-route-id="@Model?.Id">Edytuj</a> |</span>
+    }
+    <a asp-action="Index">Powrót do listy</a>
 </div>

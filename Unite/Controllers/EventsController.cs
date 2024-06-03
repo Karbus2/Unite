@@ -29,10 +29,20 @@ namespace Unite.Controllers
         // GET: Events
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Events.Include(e => e.Participants);
+            var applicationDbContext = _context.Events.Include(e => e.Participants)
+                                                      .AsSplitQuery()
+                                                      .Include(e => e.Admin)
+                                                      .ThenInclude(a => a!.LeftSideFriendships);
             Guid userId = new Guid(_userManager.GetUserId(User));
+
             List<Event>? events = await applicationDbContext
-                .Where(e => e.End > DateTime.UtcNow && (e.Scope == Event.EventScope.Public || e.Participants.Any(p => p.ParticipantId == userId)))
+                .Where(e => e.End > DateTime.UtcNow 
+                        && (e.Scope == Event.EventScope.Public 
+                        || (e.Admin!.LeftSideFriendships != null 
+                        &&  e.Scope != Event.EventScope.Private
+                        &&  e.Admin.LeftSideFriendships.Any(l => l.RightSideId == userId
+                                                              && l.State == Friendship.FriendshipState.Accepted)) 
+                        ||  e.Participants!.Any(p => p.ParticipantId == userId)))
                 .ToListAsync();
             
             return View(events);
