@@ -43,22 +43,29 @@
                     @if(item.RightSideFriendships.Any(r => r.LeftSideId == new Guid(_userManager.GetUserId(User)) && r.State == Friendship.FriendshipState.Accepted))
                     {
                         // Przyjaciel
-                        <form asp-controller="Friends" asp-action="Delete" asp-route-returnUrl="@Context.Request.Path" method="post" role="form">
-                            <button type="submit" name="delete" value="@item.Id">
+                        <form asp-controller="Friends" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-primary">
                                 Usuń ze znajomych
                             </button>
                         </form>
-                        
                     }
                     else if (item.RightSideFriendships.Any(r => r.LeftSideId == new Guid(_userManager.GetUserId(User))))
                     {
                         // Zaproszony do znajomych
-                        <a asp-action="Cancel" asp-route-id="@item.Id">Anuluj zaproszenie</a>
+                        <form asp-controller="Friends" asp-action="Cancel" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-primary">
+                                Anuluj zaproszenie
+                            </button>
+                        </form>
                     }
                     else if (item.LeftSideFriendships.Any(l => l.RightSideId == new Guid(_userManager.GetUserId(User))))
                     {
                         // Zapraszający
-                        <a asp-action="Accept" asp-route-id="@item.Id">Zaakceptuj zaproszenie</a>
+                        <form asp-controller="Friends" asp-action="Accept" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-primary">
+                                Zaakceptuj zaproszenie
+                            </button>
+                        </form>
                     }
                     else
                     {
