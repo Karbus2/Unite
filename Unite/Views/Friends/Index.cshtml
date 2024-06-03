@@ -1,14 +1,22 @@
 ﻿@model IEnumerable<Unite.Models.Friendship>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Moi znajomi";
 }
 
-<h1>Index</h1>
+<h1>Moi znajomi</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<form asp-action="Search" method="get">
+    <label>
+        Szukaj znajomych
+        <input name="match" type="text" />
+    </label>
+    
+    <button type="submit">
+        Szukaj
+    </button>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -31,14 +39,32 @@
                 @Html.DisplayFor(modelItem => item.LeftSide.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LeftSide.UserName)
+                <a asp-action="Profile" asp-route-id="@item.LeftSide.Id">
+                    @Html.DisplayFor(modelItem => item.LeftSide.UserName)
+                </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LeftSide.CreatedDate)
             </td>
             <td>
-                @Html.ActionLink("Add", "Add", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Profile", "Profile", new { /* id=item.PrimaryKey */ })
+                @if (item.State == Friendship.FriendshipState.Accepted)
+                {
+                    // Przyjaciel
+                    <form asp-controller="Friends" asp-action="Delete" asp-route-id="@item.LeftSideId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            Usuń ze znajomych
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    // Zapraszający
+                    <form asp-controller="Friends" asp-action="Accept" asp-route-id="@item.LeftSideId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            Zaakceptuj zaproszenie
+                        </button>
+                    </form>
+                }
             </td>
         </tr>
 }

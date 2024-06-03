@@ -4,7 +4,7 @@
 @model IEnumerable<Unite.Models.ApplicationUser>
 
 @{
-    ViewData["Title"] = "Search";
+    ViewData["Title"] = "Szukaj znajomych";
 }
 
 <h4>Szukaj znajomych</h4>
@@ -32,7 +32,9 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UserName)
+                    <a asp-action="Profile" asp-route-id="@item.Id">
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </a>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.CreatedDate)
@@ -74,7 +76,6 @@
                             </button>
                         </form>
                     }
-                    @Html.ActionLink("Profile", "Profile", new { /* id=item.PrimaryKey */ })
                 </td>
             </tr>
         }
