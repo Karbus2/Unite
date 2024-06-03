@@ -31,7 +31,9 @@ namespace Unite.Controllers
         {
             var applicationDbContext = _context.Events.Include(e => e.Participants);
             Guid userId = new Guid(_userManager.GetUserId(User));
-            List<Event>? events = await applicationDbContext.Where(e => e.Scope == Event.EventScope.Public || e.Participants.Any(p => p.ParticipantId == userId)).ToListAsync();
+            List<Event>? events = await applicationDbContext
+                .Where(e => e.End > DateTime.UtcNow && (e.Scope == Event.EventScope.Public || e.Participants.Any(p => p.ParticipantId == userId)))
+                .ToListAsync();
             
             return View(events);
         }
@@ -96,8 +98,14 @@ namespace Unite.Controllers
             Guid userId = new Guid(_userManager.GetUserId(User));
             var @event = await _context.Events.Include(e => e.Participants)
                                               .SingleOrDefaultAsync(e => e.Id == id);
-            
-            if (@event == null || (@event.Scope != Event.EventScope.Public && !@event.Participants.Any(p => p.ParticipantId == userId)))
+            if (@event == null)
+            {
+                return NotFound();
+            }
+            if (!_context.UserEvents.Any(ue => ue.EventId == @event.Id
+                                             && ue.ParticipantId == userId
+                                             && (ue.Role == UserEvent.UserEventRole.Admin
+                                             || ue.Role == UserEvent.UserEventRole.Moderator)))
             {
                 return NotFound();
             }

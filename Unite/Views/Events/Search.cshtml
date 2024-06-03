@@ -4,14 +4,11 @@
 @inject UserManager<ApplicationUser> userManager
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lista wydarzeń";
 }
 
-<h1>Nadchodzące wydarzenia</h1>
+<h1>Szukaj wydarzeń</h1>
 
-<p>
-    <a asp-action="Create">Zaplanuj wydarzenie</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -82,12 +79,12 @@
                 @Html.DisplayFor(modelItem => item.UpdatedDate)
             </td>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 @if (item.AdminId == new Guid(userManager.GetUserId(User)))
                 {
                     <span>
-                        | <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
-                        | <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                     </span>
                 }
             </td>
