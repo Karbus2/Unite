@@ -91,7 +91,7 @@ namespace Unite.Controllers
             if (Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Events");
         }
         // POST: Friends/Accept/5
         [HttpPost]
@@ -125,7 +125,7 @@ namespace Unite.Controllers
             if (Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Events");
         }
 
         // POST: Friends/Cancel/5
@@ -143,9 +143,12 @@ namespace Unite.Controllers
                 return BadRequest();
             }
 
-            Friendship? friendship = await _context.Friendships.SingleOrDefaultAsync(e => e.LeftSideId == userId && e.RightSideId == id && e.State == Friendship.FriendshipState.ToAccept);
+            Friendship? friendship = await _context.Friendships.SingleOrDefaultAsync(e => ((e.LeftSideId == userId && e.RightSideId == id) 
+                                                                                        || (e.LeftSideId == id && e.RightSideId == userId)) 
+                                                                                         && e.State == Friendship.FriendshipState.ToAccept);
             if (friendship == null)
             {
+
                 return NotFound();
             }
             
@@ -155,7 +158,7 @@ namespace Unite.Controllers
             if (Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Events");
         }
 
         // POST: Friends/Delete/5
@@ -190,7 +193,7 @@ namespace Unite.Controllers
             if (Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
             else
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Events");
         }
     }
 }

@@ -21,10 +21,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.LeftSide.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LeftSide.UserName)
+                Nazwa użytkownika
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.LeftSide.CreatedDate)
@@ -35,9 +32,6 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.LeftSide.Id)
-            </td>
             <td>
                 <a asp-action="Profile" asp-route-id="@item.LeftSide.Id">
                     @Html.DisplayFor(modelItem => item.LeftSide.UserName)
