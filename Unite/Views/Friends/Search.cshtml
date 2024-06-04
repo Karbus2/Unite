@@ -38,7 +38,7 @@
                     {
                         // Przyjaciel
                         <form asp-controller="Friends" asp-action="Delete" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-danger">
                                 Usuń ze znajomych
                             </button>
                         </form>
@@ -47,7 +47,7 @@
                     {
                         // Zaproszony do znajomych
                         <form asp-controller="Friends" asp-action="Cancel" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-danger">
                                 Anuluj zaproszenie
                             </button>
                         </form>
@@ -58,6 +58,11 @@
                         <form asp-controller="Friends" asp-action="Accept" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
                             <button type="submit" class="btn btn-primary">
                                 Zaakceptuj zaproszenie
+                            </button>
+                        </form>
+                        <form asp-controller="Friends" asp-action="Cancel" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-danger">
+                                Odrzuć zaproszenie
                             </button>
                         </form>
                     }
