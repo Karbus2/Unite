@@ -1,4 +1,6 @@
-﻿namespace Unite.Models
+﻿using System.ComponentModel;
+
+namespace Unite.Models
 {
     public class UserEvent : IDbOperationTS
     {
@@ -14,10 +16,14 @@
             Invited
         }
         public Guid ParticipantId { get; set; }
+        [DisplayName("Uczestnik")]
         public virtual ApplicationUser? Participant { get; set; }
         public Guid EventId { get; set; }
+        [DisplayName("Wydarzenie")]
         public virtual Event? Event { get; set; }
+        [DisplayName("Rola")]
         public UserEventRole Role { get; set; } = UserEventRole.Participant;
+        [DisplayName("Status uczestnictwa")]
         public UserEventState State { get; set; } = UserEventState.Accepted;
         public DateTime CreatedDate { get; set; } 
         public DateTime UpdatedDate { get; set; }
