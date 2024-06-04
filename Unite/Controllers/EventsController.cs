@@ -306,7 +306,7 @@ namespace Unite.Controllers
 
             // Czy są uczestnicy?
             // Czy zapraszający jest adminem lub moderatorem spotkania?
-            // Czy zapraszany jest zaproszony?
+            // Czy zapraszany jest zaproszony lub uczestniczy?
 
             if (@event.Participants == null 
              || @event.Participants.Any(p => p.ParticipantId == userId 
@@ -320,54 +320,6 @@ namespace Unite.Controllers
             UserEvent userEvent = new UserEvent((Guid)participantId, (Guid)eventId, UserEvent.UserEventRole.Participant, UserEvent.UserEventState.Invited);
 
             _context.UserEvents.Add(userEvent);
-            await _context.SaveChangesAsync();
-
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CancelInvitation(Guid? participantId, Guid? eventId, string returnUrl)
-        {
-            if (participantId == null || eventId == null)
-            {
-                return BadRequest();
-            }
-
-            Guid userId = new Guid(_userManager.GetUserId(User));
-
-            Event? @event = await _context.Events.Include(e => e.Participants)
-                                                 .AsSplitQuery()
-                                                 .SingleOrDefaultAsync(e => e.Id == eventId);
-
-            if (@event == null)
-            {
-                return NotFound();
-            }
-            if (@event.Participants == null
-             || @event.Participants.Any(p => p.ParticipantId == userId
-                                         && (p.Role == UserEvent.UserEventRole.Admin
-                                          || p.Role == UserEvent.UserEventRole.Moderator)))
-            {
-                return BadRequest();
-            }
-
-            UserEvent? userEvent = await _context.UserEvents.SingleOrDefaultAsync(e => e.ParticipantId == participantId && e.EventId == eventId);
-
-            if(userEvent == null)
-            {
-                return NotFound();
-            }
-            if(userEvent.State == UserEvent.UserEventState.Accepted)
-            {
-                return BadRequest();
-            }
-
-            _context.UserEvents.Remove(userEvent);
             await _context.SaveChangesAsync();
 
             if (Url.IsLocalUrl(returnUrl))
