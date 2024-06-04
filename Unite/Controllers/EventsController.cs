@@ -205,7 +205,7 @@ namespace Unite.Controllers
         {
             if(id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             Guid userId = new Guid(_userManager.GetUserId(User));
@@ -253,7 +253,7 @@ namespace Unite.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             Guid userId = new Guid(_userManager.GetUserId(User));
@@ -266,6 +266,60 @@ namespace Unite.Controllers
             }
 
             _context.UserEvents.Remove(userEvent);
+            await _context.SaveChangesAsync();
+
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Invite(Guid? participantId, Guid? eventId, string returnUrl)
+        {
+            if (participantId == null || eventId == null)
+            {
+                return BadRequest();
+            }
+
+            Guid userId = new Guid(_userManager.GetUserId(User));
+
+            Event? @event = await _context.Events.Include(e => e.Participants)
+                                                 .AsSplitQuery()
+                                                 .SingleOrDefaultAsync(e => e.Id == eventId);
+
+            // Czy event istnieje?
+
+            if (@event == null)
+            {
+                return NotFound();
+            }
+
+            // Czy user istnieje?
+
+            if(!_context.Users.Any(e => e.Id == participantId))
+            {
+                return NotFound();
+            }
+
+            // Czy są uczestnicy?
+            // Czy zapraszający jest adminem lub moderatorem spotkania?
+            // Czy zapraszany jest zaproszony lub uczestniczy?
+
+            if (@event.Participants == null 
+             || @event.Participants.Any(p => p.ParticipantId == userId 
+                                         && (p.Role == UserEvent.UserEventRole.Admin 
+                                          || p.Role == UserEvent.UserEventRole.Moderator)) 
+             || @event.Participants.Any(p => p.ParticipantId == participantId))
+            {
+                return BadRequest();
+            }
+
+            UserEvent userEvent = new UserEvent((Guid)participantId, (Guid)eventId, UserEvent.UserEventRole.Participant, UserEvent.UserEventState.Invited);
+
+            _context.UserEvents.Add(userEvent);
             await _context.SaveChangesAsync();
 
             if (Url.IsLocalUrl(returnUrl))
