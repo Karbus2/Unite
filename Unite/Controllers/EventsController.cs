@@ -247,6 +247,33 @@ namespace Unite.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Leave(Guid? id, string returnUrl)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Guid userId = new Guid(_userManager.GetUserId(User));
+
+            UserEvent? userEvent = await _context.UserEvents.SingleOrDefaultAsync(e => e.ParticipantId == userId && e.EventId == id);
+
+            if(userEvent == null)
+            {
+                return NotFound();
+            }
+
+            _context.UserEvents.Remove(userEvent);
+            await _context.SaveChangesAsync();
+
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         private bool EventExists(Guid id)
         {
