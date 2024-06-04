@@ -58,16 +58,26 @@ namespace Unite.Controllers
 
             var @event = await _context.Events
                 .Include(e => e.Admin)
+                .ThenInclude(e => e!.LeftSideFriendships)
+                .AsSplitQuery()
                 .Include(e => e.Participants)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             Guid userId = new Guid(_userManager.GetUserId(User));
-            if (@event == null || (@event.Scope != Event.EventScope.Public && !@event.Participants.Any(p => p.ParticipantId == userId)))
+            if (@event == null || @event.Participants == null)
             {
                 return NotFound();
             }
-
-            return View(@event);
+            if (@event.Scope == Event.EventScope.Public
+             || @event.Participants.Any(e => e.ParticipantId == userId)
+             ||(@event.Scope == Event.EventScope.FriendsOnly
+             && @event.Admin!.LeftSideFriendships != null
+             && @event.Admin.LeftSideFriendships.Any(l => l.RightSideId == userId
+                                                       && l.State == Friendship.FriendshipState.Accepted)))
+            { 
+                return View(@event); 
+            }
+            return NotFound();
         }
 
         // GET: Events/Create
