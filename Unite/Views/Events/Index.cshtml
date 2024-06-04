@@ -34,16 +34,7 @@
                 @Html.DisplayNameFor(model => model.Admin)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Size)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
             </th>
             <th></th>
         </tr>
@@ -67,19 +58,10 @@
                 @Html.DisplayFor(modelItem => item.End)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Admin.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @Html.DisplayFor(modelItem => item.Admin.UserName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Size)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedDate)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
