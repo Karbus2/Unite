@@ -64,6 +64,11 @@
                             Zaakceptuj zaproszenie
                         </button>
                     </form>
+                    <form asp-controller="Friends" asp-action="Cancel" asp-route-id="@item.LeftSideId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            Odrzuć zaproszenie
+                        </button>
+                    </form>
                 }
             </td>
         </tr>
