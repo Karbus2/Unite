@@ -77,3 +77,33 @@
     }
     <a asp-action="Index">Powrót do listy</a>
 </div>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Nazwa użytkownika
+                </th>
+                <th>
+                    
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Participants)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Profile" asp-route-id="@item.ParticipantId">
+                            @Html.DisplayFor(modelItem => item.Participant.UserName)
+                        </a>
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

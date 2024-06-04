@@ -73,6 +73,26 @@
                     </span>
                 }
             </td>
+            <td>
+                    @if (item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Accepted))
+                    {
+                        <form asp-controller="Events" asp-action="Leave" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-danger">
+                                Opuść spotkanie
+                            </button>
+                        </form>
+                    }
+                    else if(item.Scope == Event.EventScope.Public
+                         || item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Invited)
+                         ||(item.Scope == Event.EventScope.FriendsOnly && item.Admin.LeftSideFriendships.Any(l => l.RightSideId == new Guid(_userManager.GetUserId(User)) && l.State == Friendship.FriendshipState.Accepted)))
+                    {
+                        <form asp-controller="Events" asp-action="Join" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                            <button type="submit" class="btn btn-primary">
+                                Dołącz do spotkania
+                            </button>
+                        </form>
+                    }
+            </td>
         </tr>
 }
     </tbody>

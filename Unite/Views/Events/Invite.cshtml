@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Unite.Models.Friendship>
+
+@{
+    ViewData["Title"] = "Zaproś do wydarzenia";
+}
+
+<h1>Zaproś do wydarzenia</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nazwa użytkownika
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LeftSide.CreatedDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="Profile" asp-route-id="@item.LeftSide.Id">
+                        @Html.DisplayFor(modelItem => item.LeftSide.UserName)
+                    </a>
+                </td>
+                <td>
+                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

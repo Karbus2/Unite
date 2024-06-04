@@ -58,9 +58,10 @@ namespace Unite.Controllers
 
             var @event = await _context.Events
                 .Include(e => e.Admin)
-                .ThenInclude(e => e!.LeftSideFriendships)
+                .ThenInclude(e => e.LeftSideFriendships)
                 .AsSplitQuery()
                 .Include(e => e.Participants)
+                .ThenInclude(p => p.Participant)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             Guid userId = new Guid(_userManager.GetUserId(User));
@@ -87,8 +88,6 @@ namespace Unite.Controllers
         }
 
         // POST: Events/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Location,Scope,Start,End,AdminId,Description,Size,CreatedDate,UpdatedDate")] Event @event)
