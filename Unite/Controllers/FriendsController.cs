@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Unite.Data;
 using Unite.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Unite.Controllers
 {
+    [Authorize]
     public class FriendsController : Controller
     {
         private readonly ApplicationDbContext _context;
