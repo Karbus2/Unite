@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 
-@model IEnumerable<Unite.Models.Event>
+@model IEnumerable<Unite.Models.EventDTO>
 @inject UserManager<ApplicationUser> _userManager
 
 @{
@@ -34,8 +34,9 @@
                 @Html.DisplayNameFor(model => model.Admin)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Size)
+                Uczestnicy
             </th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -61,7 +62,7 @@
                 @Html.DisplayFor(modelItem => item.Admin.UserName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Size)
+                @Html.DisplayFor(modelItem => item.NumOfParticipants) / @Html.DisplayFor(modelItem => item.Size)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a>
@@ -74,7 +75,13 @@
                 }
             </td>
             <td>
-                    @if (item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Accepted))
+                @if (item.Size <= item.NumOfParticipants)
+                {
+                    <span>Osiągnięto limit uczestników</span>       
+                }
+                else if (item.AdminId != new Guid(_userManager.GetUserId(User)))
+                {
+                    if (item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Accepted))
                     {
                         <form asp-controller="Events" asp-action="Leave" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
                             <button type="submit" class="btn btn-danger">
@@ -82,9 +89,9 @@
                             </button>
                         </form>
                     }
-                    else if(item.Scope == Event.EventScope.Public
-                         || item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Invited)
-                         ||(item.Scope == Event.EventScope.FriendsOnly && item.Admin.LeftSideFriendships.Any(l => l.RightSideId == new Guid(_userManager.GetUserId(User)) && l.State == Friendship.FriendshipState.Accepted)))
+                    else if (item.Scope == Event.EventScope.Public
+                            || item.Participants!.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && p.State == UserEvent.UserEventState.Invited)
+                            || (item.Scope == Event.EventScope.FriendsOnly && item.Admin.LeftSideFriendships.Any(l => l.RightSideId == new Guid(_userManager.GetUserId(User)) && l.State == Friendship.FriendshipState.Accepted)))
                     {
                         <form asp-controller="Events" asp-action="Join" asp-route-id="@item.Id" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
                             <button type="submit" class="btn btn-primary">
@@ -92,6 +99,7 @@
                             </button>
                         </form>
                     }
+                }
             </td>
         </tr>
 }

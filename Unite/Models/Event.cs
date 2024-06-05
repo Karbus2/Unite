@@ -41,4 +41,32 @@ namespace Unite.Models
         public DateTime CreatedDate { get; set; } 
         public DateTime UpdatedDate { get; set; } 
     }
+    public class EventDTO : Event
+    {
+        public int NumOfParticipants { get; set; }
+        public EventDTO(Event @event)
+        {
+            Id = @event.Id;
+            Title = @event.Title;
+            Location = @event.Location;
+            Scope = @event.Scope;
+            Start = @event.Start;
+            End = @event.End;
+            AdminId = @event.AdminId;
+            Admin = @event.Admin;
+            Participants = @event.Participants;
+            Description = @event.Description;
+            Size = @event.Size;
+            CreatedDate = @event.CreatedDate;
+            UpdatedDate = @event.UpdatedDate;
+            if (Participants == null)
+            {
+                NumOfParticipants = 0;
+            }
+            else
+            {
+                NumOfParticipants = Participants.Where(p => p.State == UserEvent.UserEventState.Accepted).Count();
+            }
+        }
+    }
 }

@@ -44,8 +44,13 @@ namespace Unite.Controllers
                                                               && l.State == Friendship.FriendshipState.Accepted)) 
                         ||  e.Participants!.Any(p => p.ParticipantId == userId)))
                 .ToListAsync();
-            
-            return View(events);
+
+            List<EventDTO>? eventDTOs = new List<EventDTO>();
+            foreach(Event @event in events)
+            {
+                eventDTOs.Add(new EventDTO(@event));
+            }
+            return View(eventDTOs);
         }
 
         // GET: Events/Details/5
@@ -76,7 +81,7 @@ namespace Unite.Controllers
              && @event.Admin.LeftSideFriendships.Any(l => l.RightSideId == userId
                                                        && l.State == Friendship.FriendshipState.Accepted)))
             { 
-                return View(@event); 
+                return View(new EventDTO(@event)); 
             }
             return NotFound();
         }
@@ -230,6 +235,13 @@ namespace Unite.Controllers
                 return NotFound();
             }
 
+            // Size validation
+
+            if(@event.Size != null && @event.Size <= @event.Participants!.Where(p => p.State == UserEvent.UserEventState.Accepted).Count())
+            {
+                return BadRequest();
+            }
+
             UserEvent? userEvent = await _context.UserEvents.SingleOrDefaultAsync(e => e.ParticipantId == userId && e.EventId == id);
             if (userEvent != null)
             {
@@ -272,6 +284,11 @@ namespace Unite.Controllers
             if(userEvent == null)
             {
                 return NotFound();
+            }
+
+            if(userEvent.Role == UserEvent.UserEventRole.Admin)
+            {
+                return Unauthorized();
             }
 
             _context.UserEvents.Remove(userEvent);
