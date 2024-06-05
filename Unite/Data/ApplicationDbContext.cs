@@ -28,18 +28,18 @@ namespace Unite.Data
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
                 entity.Property(e => e.CreatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
             });
             modelBuilder.Entity<Event>(entity =>
             {
                 entity.Property(e => e.Scope)
                       .HasConversion<string>();
                 entity.Property(e => e.CreatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
             });
             modelBuilder.Entity<UserEvent>(entity =>
             {
@@ -59,9 +59,9 @@ namespace Unite.Data
                       .IsRequired()
                       .OnDelete(DeleteBehavior.ClientCascade);
                 entity.Property(e => e.CreatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
             });
             modelBuilder.Entity<Friendship>(entity =>
             {
@@ -79,9 +79,9 @@ namespace Unite.Data
                       .IsRequired()
                       .OnDelete(DeleteBehavior.NoAction);
                 entity.Property(e => e.CreatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)
-                      .HasDefaultValueSql("getutcdate()");
+                      .HasDefaultValueSql("getdate()");
             });
         }
     }

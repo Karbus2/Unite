@@ -300,7 +300,42 @@ namespace Unite.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        public async Task<IActionResult> Invite(Guid? eventId)
+        {
+            if (eventId == null)
+            {
+                return BadRequest();
+            }
 
+            Guid userId = new Guid(_userManager.GetUserId(User));
+
+            List<Friendship>? friendships = await _context.Friendships.Include(e => e.LeftSide)
+                                                                      .Where(e => e.RightSideId == userId && e.State == Friendship.FriendshipState.Accepted)
+                                                                      .ToListAsync();
+            if(friendships == null)
+            {
+                return View(friendships);
+            }
+            Event? @event = await _context.Events.Include(e => e.Participants)
+                                                 .SingleOrDefaultAsync(e => e.Id == eventId);
+            if (@event == null) 
+            { 
+                return NotFound(); 
+            }
+            if(@event.Participants != null)
+            {
+                List<Friendship>? friendshipsFiltered = new List<Friendship>();
+                foreach (Friendship friendship in friendships)
+                {
+                    if(!@event.Participants.Any(p => p.ParticipantId == friendship.LeftSideId))
+                    {
+                        friendshipsFiltered.Add(friendship);
+                    }
+                }
+                return View(friendshipsFiltered);
+            }
+            return View(friendships);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Invite(Guid? participantId, Guid? eventId, string returnUrl)
@@ -336,8 +371,7 @@ namespace Unite.Controllers
 
             if (@event.Participants == null 
              || @event.Participants.Any(p => p.ParticipantId == userId 
-                                         && (p.Role == UserEvent.UserEventRole.Admin 
-                                          || p.Role == UserEvent.UserEventRole.Moderator)) 
+                                         && (p.Role == UserEvent.UserEventRole.Participant)) 
              || @event.Participants.Any(p => p.ParticipantId == participantId))
             {
                 return BadRequest();

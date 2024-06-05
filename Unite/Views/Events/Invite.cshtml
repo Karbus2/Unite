@@ -13,7 +13,7 @@
                 Nazwa użytkownika
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LeftSide.CreatedDate)
+                
             </th>
             <th></th>
         </tr>
@@ -23,12 +23,16 @@
         {
             <tr>
                 <td>
-                    <a asp-action="Profile" asp-route-id="@item.LeftSide.Id">
+                    <a asp-action="Profile" asp-route-id="@item.LeftSideId">
                         @Html.DisplayFor(modelItem => item.LeftSide.UserName)
                     </a>
                 </td>
                 <td>
-                    
+                    <form asp-controller="Events" asp-action="Invite" asp-route-participantId="@item.LeftSideId" asp-route-eventId="@(Context.Request.Query["eventId"].ToString())" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            Zaproś do spotkania
+                        </button>
+                    </form>
                 </td>
             </tr>
         }
