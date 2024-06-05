@@ -71,7 +71,7 @@
     </dl>
 </div>
 <div>
-    @if (Model.AdminId == new Guid(_userManager.GetUserId(User)))
+    @if (Model.Participants.Any(p => p.ParticipantId == new Guid(_userManager.GetUserId(User)) && (p.Role == UserEvent.UserEventRole.Admin || p.Role == UserEvent.UserEventRole.Moderator)))
     {
         <span><a asp-action="Edit" asp-route-id="@Model?.Id">Edytuj</a> |</span>
         <span><a asp-action="Invite" asp-route-eventId="@Model?.Id" method="get">Zaproś znajomych</a> |</span>
