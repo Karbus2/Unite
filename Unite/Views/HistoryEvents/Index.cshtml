@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Unite.Models.EventDTO>
+
+@{
+    ViewData["Title"] = "Historia wydarzeń";
+}
+
+<h1>Historia Wydarzeń</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Scope)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Start)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.End)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Admin)
+            </th>
+            <th>
+                Uczestnicy
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Scope)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Start)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.End)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Admin.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NumOfParticipants) / @Html.DisplayFor(modelItem => item.Size)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Szczegóły</a>
+                </td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>

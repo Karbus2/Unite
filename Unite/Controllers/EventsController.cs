@@ -63,11 +63,10 @@ namespace Unite.Controllers
 
             var @event = await _context.Events
                 .Include(e => e.Admin)
-                .ThenInclude(e => e.LeftSideFriendships)
                 .AsSplitQuery()
                 .Include(e => e.Participants)
                 .ThenInclude(p => p.Participant)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .SingleOrDefaultAsync(m => m.Id == id);
 
             Guid userId = new Guid(_userManager.GetUserId(User));
             if (@event == null || @event.Participants == null)
