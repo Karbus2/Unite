@@ -19,7 +19,7 @@ namespace Unite.Data
         //void OnEntityStateChanged(object sender, EntityStateChangedEventArgs e)
         //{
         //    if (e.NewState == EntityState.Modified && e.Entry.Entity is IDbOperationTS entity)
-        //        entity.UpdatedDate = DateTime.UtcNow;
+        //        entity.UpdatedDate = DateTime.Now;
         //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

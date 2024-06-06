@@ -36,7 +36,7 @@ namespace Unite.Controllers
             Guid userId = new Guid(_userManager.GetUserId(User));
 
             List<Event>? events = await applicationDbContext
-                .Where(e => e.End > DateTime.UtcNow 
+                .Where(e => e.End > DateTime.Now 
                         && (e.Scope == Event.EventScope.Public 
                         || (e.Admin!.LeftSideFriendships != null 
                         &&  e.Scope != Event.EventScope.Private
