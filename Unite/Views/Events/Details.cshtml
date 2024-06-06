@@ -89,6 +89,9 @@
                 <th>
                     Rola
                 </th>
+                <th>
+                    Status uczestnictwa
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -104,6 +107,10 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Role)
                     </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.State)
+                    </td>
+                    <td></td>
                 </tr>
             }
         </tbody>

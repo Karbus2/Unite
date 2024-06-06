@@ -21,7 +21,7 @@ namespace Unite.Models
         public string Location { get; set; }
         [DisplayName("Zasięg")]
         public EventScope Scope { get; set; } = EventScope.FriendsOnly;
-        [IsLower<DateTime>(nameof(End)), FutureDate]
+        [IsLower<DateTime>(nameof(End))]
         [DisplayName("Data rozpoczęcia")]
         public DateTime Start { get; set; }
         [DisplayName("Data zakończenia")]
