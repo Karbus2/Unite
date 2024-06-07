@@ -36,12 +36,12 @@ namespace Unite.Models
         public ApplicationUserDTO(ApplicationUser user)
         {
             Id = user.Id;
-            UserName = user.UserName;
+            UserName = user.UserName!;
             UserRatings = user.UserRatings;
             EventRatings = user.EventRatings;
             Events = user.Events;
             LeftSideFriendships = user.LeftSideFriendships;
-            if(UserRatings != null)
+            if(UserRatings != null && UserRatings.Count > 0)
             {
                 AverageScore = 0;
                 foreach(UserRating rating in UserRatings)
@@ -50,14 +50,22 @@ namespace Unite.Models
                 }
                 AverageScore /= UserRatings.Count;
             }
-            if(EventRatings != null)
+            else
+            {
+                AverageScore = null;
+            }
+            if(EventRatings != null && EventRatings.Count > 0)
             {
                 AverageEventScore = 0;
                 foreach(EventRating rating in EventRatings)
                 {
                     AverageEventScore += rating.Value;
                 }
-                AverageScore /= EventRatings.Count;
+                AverageEventScore /= EventRatings.Count;
+            }
+            else
+            {
+                AverageEventScore = null;
             }
             if(LeftSideFriendships != null)
             {

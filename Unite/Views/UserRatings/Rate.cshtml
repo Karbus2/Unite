@@ -1,0 +1,39 @@
+﻿@model Unite.Models.UserRating
+
+@{
+    ViewData["Title"] = "Ocena użytkownika";
+}
+
+<h1>Oceń użytkownika</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Rate">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="UserId" class ="form-control" value="@ViewData["UserId"]"/>
+            <input type="hidden" asp-for="ReviewerId" class ="form-control" value="@ViewData["ReviewerId"]"/>
+            <div class="form-group">
+                <label asp-for="Value" class="control-label"></label>
+                <input asp-for="Value" class="form-control" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Review" class="control-label"></label>
+                <input asp-for="Review" class="form-control" />
+                <span asp-validation-for="Review" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Oceń" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Profile" asp-controller="Friends">Powrót do profilu</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

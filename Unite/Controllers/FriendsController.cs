@@ -42,14 +42,16 @@ namespace Unite.Controllers
                 return NotFound();
             }
 
-            var friend = await _context.Users
-                .FindAsync(id);
+            ApplicationUser? friend = await _context.Users.Include(e => e.UserRatings)
+                                             .ThenInclude(ur => ur.Reviewer)
+                                             .AsSplitQuery()
+                                             .Include(e => e.EventRatings)
+                                             .SingleOrDefaultAsync(e => e.Id == id);
             if (friend == null)
             {
                 return NotFound();
             }
-
-            return View(friend);
+            return View(new ApplicationUserDTO(friend));
         }
 
         // GET: Friends/Search
