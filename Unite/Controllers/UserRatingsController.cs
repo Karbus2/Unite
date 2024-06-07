@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Unite.Data;
 using Unite.Models;
 
@@ -31,37 +32,13 @@ namespace Unite.Controllers
                 return BadRequest();
             }
             Guid userId = new Guid(_userManager.GetUserId(User));
-            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
-                                                               .ThenInclude(e => e.Event)
-                                                               .SingleOrDefaultAsync(e => e.Id == userId);
-            if(currentUser == null)
-            {
-                return NotFound();
-            }
-            if(currentUser.Events == null)
+            if(!await HasCommonEvent(userId, (Guid)id))
             {
                 return Unauthorized();
             }
-            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
-                                                              .ThenInclude(e => e.Event)
-                                                              .SingleOrDefaultAsync(e => e.Id == id);
-            if(userToRate == null)
-            {
-                return NotFound();
-            }
-            if(userToRate.Events == null)
-            {
-                return Unauthorized();
-            }
-            if (currentUser.Events.Select(e => e.Event)
-                                  .Intersect(userToRate.Events.Select(e => e.Event))
-                                  .Any())
-            {
-                ViewData["UserId"] = userToRate.Id;
-                ViewData["ReviewerId"] = userId;
-                return View();
-            }
-            return Unauthorized();
+            ViewData["UserId"] = id;
+            ViewData["ReviewerId"] = userId;
+            return View();
         }
         // POST: UserRatings/Rate
         [HttpPost]
@@ -77,33 +54,15 @@ namespace Unite.Controllers
                 return BadRequest();
             }
             Guid userId = new Guid(_userManager.GetUserId(User));
-            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
-                                                               .ThenInclude(e => e.Event)
-                                                               .SingleOrDefaultAsync(e => e.Id == userId);
-            if (currentUser == null)
-            {
-                return NotFound();
-            }
-            if (currentUser.Events == null)
+            if(!await HasCommonEvent(userRating.UserId, userId))
             {
                 return Unauthorized();
             }
-            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
-                                                              .ThenInclude(e => e.Event)
-                                                              .SingleOrDefaultAsync(e => e.Id == userRating.UserId);
-            if (userToRate == null)
-            {
-                return NotFound();
-            }
-            if (userToRate.Events == null)
-            {
-                return Unauthorized();
-            }
-            if (currentUser.Events.Select(e => e.Event).Intersect(userToRate.Events.Select(e => e.Event)).Any() && ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 _context.Add(userRating);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Profile", "Friends", userRating.UserId.ToString());
+                return RedirectToAction("Profile", "Friends", new { id = userRating.UserId });
             }
             return View(userRating);
         }
@@ -113,22 +72,18 @@ namespace Unite.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
-
-            var userRating = await _context.UserRatings.FindAsync(id);
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            var userRating = await _context.UserRatings.SingleOrDefaultAsync(e => e.UserId == id && e.ReviewerId == userId);
             if (userRating == null)
             {
                 return NotFound();
             }
-            ViewData["ReviewerId"] = new SelectList(_context.Users, "Id", "Id", userRating.ReviewerId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", userRating.UserId);
             return View(userRating);
         }
 
         // POST: UserRatings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("UserId,ReviewerId,Value,Review,CreatedDate,UpdatedDate")] UserRating userRating)
@@ -137,7 +92,11 @@ namespace Unite.Controllers
             {
                 return NotFound();
             }
-
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (!_context.UserRatings.Any(e => e.UserId == id && e.ReviewerId == userId))
+            {
+                return NotFound();
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -156,51 +115,66 @@ namespace Unite.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Profile", "Friends", new { id = userRating.UserId });
             }
-            ViewData["ReviewerId"] = new SelectList(_context.Users, "Id", "Id", userRating.ReviewerId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", userRating.UserId);
-            return View(userRating);
-        }
-
-        // GET: UserRatings/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var userRating = await _context.UserRatings
-                .Include(u => u.Reviewer)
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(m => m.UserId == id);
-            if (userRating == null)
-            {
-                return NotFound();
-            }
-
-            return View(userRating);
+            return RedirectToAction("Profile", "Friends", new { id = userRating.UserId });
         }
 
         // POST: UserRatings/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> Delete(Guid? id)
         {
-            var userRating = await _context.UserRatings.FindAsync(id);
-            if (userRating != null)
+            if(id == null)
             {
-                _context.UserRatings.Remove(userRating);
+                return BadRequest();
             }
-
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            var userRating = await _context.UserRatings.SingleOrDefaultAsync(e => e.UserId == id && e.ReviewerId == userId);
+            if(userRating == null)
+            {
+                return NotFound();
+            }
+            _context.UserRatings.Remove(userRating);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Profile", "Friends", new {id = userRating.UserId});
         }
 
         private bool UserRatingExists(Guid id)
         {
             return _context.UserRatings.Any(e => e.UserId == id);
+        }
+        private async Task<bool> HasCommonEvent(Guid currentUserId, Guid userToRateId)
+        {
+            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
+                                                               .ThenInclude(e => e.Event)
+                                                               .SingleOrDefaultAsync(e => e.Id == currentUserId);
+            if (currentUser == null)
+            {
+                return false;
+            }
+            if (currentUser.Events == null)
+            {
+                return false;
+            }
+            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
+                                                              .ThenInclude(e => e.Event)
+                                                              .SingleOrDefaultAsync(e => e.Id == userToRateId);
+            if (userToRate == null)
+            {
+                return false;
+            }
+            if (userToRate.Events == null)
+            {
+                return false;
+            }
+            if (currentUser.Events.Where(e => e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event)
+                                  .Intersect(userToRate.Events.Where(e => e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event))
+                                  .Any())
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

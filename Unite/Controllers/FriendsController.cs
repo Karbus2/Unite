@@ -52,33 +52,38 @@ namespace Unite.Controllers
                 return NotFound();
             }
             ApplicationUserDTO friendDTO = new ApplicationUserDTO(friend);
-            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
-                                                               .ThenInclude(e => e.Event)
-                                                               .SingleOrDefaultAsync(e => e.Id == userId);
-            if (currentUser == null)
+            if (id != userId)
             {
-                return NotFound();
-            }
-            if (currentUser.Events == null)
-            {
-                return View(friendDTO);
-            }
-            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
-                                                              .ThenInclude(e => e.Event)
-                                                              .SingleOrDefaultAsync(e => e.Id == id);
-            if (userToRate == null)
-            {
-                return NotFound();
-            }
-            if (userToRate.Events == null)
-            {
-                return View(friendDTO);
-            }
-            if (currentUser.Events.Select(e => e.Event)
-                                  .Intersect(userToRate.Events.Select(e => e.Event))
-                                  .Any())
-            {
-                friendDTO.HasCommonEvent = true;
+                ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
+                                                                   .ThenInclude(e => e.Event)
+                                                                   .SingleOrDefaultAsync(e => e.Id == userId);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+                if (currentUser.Events == null)
+                {
+                    return View(friendDTO);
+                }
+                ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
+                                                                  .ThenInclude(e => e.Event)
+                                                                  .SingleOrDefaultAsync(e => e.Id == id);
+                if (userToRate == null)
+                {
+                    return NotFound();
+                }
+                if (userToRate.Events == null)
+                {
+                    return View(friendDTO);
+                }
+                if (currentUser.Events.Where(e => e.State == UserEvent.UserEventState.Accepted)
+                                      .Select(e => e.Event)
+                                      .Intersect(userToRate.Events.Where(e => e.State == UserEvent.UserEventState.Accepted)
+                                                                  .Select(e => e.Event))
+                                      .Any())
+                {
+                    friendDTO.HasCommonEvent = true;
+                }
             }
             return View(friendDTO);
         }

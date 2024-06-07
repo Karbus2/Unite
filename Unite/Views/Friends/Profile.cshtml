@@ -1,9 +1,11 @@
-﻿@using Unite.Data
+﻿@using Microsoft.AspNetCore.Identity
 
+@inject UserManager<ApplicationUser> _userManager;
 @model Unite.Models.ApplicationUserDTO
 
 @{
     ViewData["Title"] = "Profil";
+    Guid userId = new Guid(_userManager.GetUserId(User));
 }
 
 <h1>Profil</h1>
@@ -61,7 +63,14 @@
     @if (Model.HasCommonEvent)
     {
         <span> | </span>
-        <a asp-action="Rate" asp-controller="UserRatings" asp-route-id="@Model.Id">Oceń użytkownika</a>
+        @if(Model.UserRatings!.Any(e => e.UserId == Model.Id && e.ReviewerId == userId))
+        {
+            <a asp-action="Edit" asp-controller="UserRatings" asp-route-id="@Model.Id">Zmień Ocenę</a>
+        }
+        else
+        {
+            <a asp-action="Rate" asp-controller="UserRatings" asp-route-id="@Model.Id">Oceń użytkownika</a>
+        }
     }
 </div>
 <div>
