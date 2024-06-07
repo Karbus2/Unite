@@ -58,7 +58,11 @@
 </div>
 <div>
     <a asp-action="Index">Powrót do listy</a>
-    
+    @if (Model.HasCommonEvent)
+    {
+        <span> | </span>
+        <a asp-action="Rate" asp-controller="UserRatings" asp-route-id="@Model.Id">Oceń użytkownika</a>
+    }
 </div>
 <div>
     <table class="table">
@@ -82,7 +86,7 @@
                 <tr>
                     <td>
                         <a asp-controller="Friends" asp-action="Profile" asp-route-id="@item.ReviewerId">
-                            @Html.DisplayFor(modelItem => item.Reviewer!.Id)
+                            @Html.DisplayFor(modelItem => item.Reviewer!.UserName)
                         </a>
                     </td>
                     <td>

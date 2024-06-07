@@ -31,6 +31,7 @@ namespace Unite.Models
         public double? AverageEventScore { get; set; }
         [DisplayName("Ilość znajomych")]
         public int FriendshipsCount { get; set; }
+        public bool HasCommonEvent { get; set; }
         [DisplayName("Zarejestrowany")]
         public DateTime CreatedDate { get; set; }
         public ApplicationUserDTO(ApplicationUser user)
@@ -41,6 +42,7 @@ namespace Unite.Models
             EventRatings = user.EventRatings;
             Events = user.Events;
             LeftSideFriendships = user.LeftSideFriendships;
+            HasCommonEvent = false;
             if(UserRatings != null && UserRatings.Count > 0)
             {
                 AverageScore = 0;
@@ -78,6 +80,10 @@ namespace Unite.Models
                     }
                 }
             }
+        }
+        public ApplicationUserDTO(ApplicationUser user, bool hasCommonEvent) : this(user)
+        {
+            HasCommonEvent = hasCommonEvent;
         }
     }
 }

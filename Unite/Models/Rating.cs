@@ -13,7 +13,7 @@ namespace Unite.Models
         [DisplayName("Ocena")]
         public int Value { get; set; }
         [Length(0, 512)]
-        [DisplayName("Opinia")]
+        [DisplayName("Komentarz")]
         public string Review { get; set; } = string.Empty;
         [DisplayName("Data oceny")]
         public DateTime CreatedDate { get; set; }

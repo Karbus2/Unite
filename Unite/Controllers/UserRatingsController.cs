@@ -17,13 +17,11 @@ namespace Unite.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly Guid _userId;
 
         public UserRatingsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _userId = new Guid(_userManager.GetUserId(User));
         }
         // GET: UserRatings/Rate
         public async Task<IActionResult> Rate(Guid? id)
@@ -32,8 +30,10 @@ namespace Unite.Controllers
             {
                 return BadRequest();
             }
-            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events)
-                                                              .SingleOrDefaultAsync(e => e.Id == _userId);
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
+                                                               .ThenInclude(e => e.Event)
+                                                               .SingleOrDefaultAsync(e => e.Id == userId);
             if(currentUser == null)
             {
                 return NotFound();
@@ -42,7 +42,8 @@ namespace Unite.Controllers
             {
                 return Unauthorized();
             }
-            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events)
+            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
+                                                              .ThenInclude(e => e.Event)
                                                               .SingleOrDefaultAsync(e => e.Id == id);
             if(userToRate == null)
             {
@@ -52,10 +53,12 @@ namespace Unite.Controllers
             {
                 return Unauthorized();
             }
-            if (currentUser.Events.Intersect(userToRate.Events).Any())
+            if (currentUser.Events.Select(e => e.Event)
+                                  .Intersect(userToRate.Events.Select(e => e.Event))
+                                  .Any())
             {
                 ViewData["UserId"] = userToRate.Id;
-                ViewData["ReviewerId"] = _userId;
+                ViewData["ReviewerId"] = userId;
                 return View();
             }
             return Unauthorized();
@@ -65,8 +68,18 @@ namespace Unite.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Rate([Bind("UserId,ReviewerId,Value,Review")] UserRating userRating)
         {
-            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events)
-                                                              .SingleOrDefaultAsync(e => e.Id == _userId);
+            if(userRating == null) 
+            { 
+                return BadRequest(); 
+            }
+            if(_context.UserRatings.Any(e => e.UserId == userRating.UserId && e.ReviewerId == userRating.ReviewerId))
+            {
+                return BadRequest();
+            }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
+                                                               .ThenInclude(e => e.Event)
+                                                               .SingleOrDefaultAsync(e => e.Id == userId);
             if (currentUser == null)
             {
                 return NotFound();
@@ -75,7 +88,8 @@ namespace Unite.Controllers
             {
                 return Unauthorized();
             }
-            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events)
+            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
+                                                              .ThenInclude(e => e.Event)
                                                               .SingleOrDefaultAsync(e => e.Id == userRating.UserId);
             if (userToRate == null)
             {
@@ -85,11 +99,11 @@ namespace Unite.Controllers
             {
                 return Unauthorized();
             }
-            if (currentUser.Events.Intersect(userToRate.Events).Any() && ModelState.IsValid)
+            if (currentUser.Events.Select(e => e.Event).Intersect(userToRate.Events.Select(e => e.Event)).Any() && ModelState.IsValid)
             {
                 _context.Add(userRating);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Profile", "Friends", userRating.UserId);
+                return RedirectToAction("Profile", "Friends", userRating.UserId.ToString());
             }
             return View(userRating);
         }

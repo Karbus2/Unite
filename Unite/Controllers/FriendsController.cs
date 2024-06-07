@@ -41,7 +41,7 @@ namespace Unite.Controllers
             {
                 return NotFound();
             }
-
+            Guid userId = new Guid(_userManager.GetUserId(User));
             ApplicationUser? friend = await _context.Users.Include(e => e.UserRatings)
                                              .ThenInclude(ur => ur.Reviewer)
                                              .AsSplitQuery()
@@ -51,7 +51,36 @@ namespace Unite.Controllers
             {
                 return NotFound();
             }
-            return View(new ApplicationUserDTO(friend));
+            ApplicationUserDTO friendDTO = new ApplicationUserDTO(friend);
+            ApplicationUser? currentUser = await _context.Users.Include(e => e.Events!)
+                                                               .ThenInclude(e => e.Event)
+                                                               .SingleOrDefaultAsync(e => e.Id == userId);
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+            if (currentUser.Events == null)
+            {
+                return View(friendDTO);
+            }
+            ApplicationUser? userToRate = await _context.Users.Include(e => e.Events!)
+                                                              .ThenInclude(e => e.Event)
+                                                              .SingleOrDefaultAsync(e => e.Id == id);
+            if (userToRate == null)
+            {
+                return NotFound();
+            }
+            if (userToRate.Events == null)
+            {
+                return View(friendDTO);
+            }
+            if (currentUser.Events.Select(e => e.Event)
+                                  .Intersect(userToRate.Events.Select(e => e.Event))
+                                  .Any())
+            {
+                friendDTO.HasCommonEvent = true;
+            }
+            return View(friendDTO);
         }
 
         // GET: Friends/Search
