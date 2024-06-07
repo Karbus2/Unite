@@ -16,17 +16,34 @@ namespace Unite.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<UserEvent> UserEvents { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
-        //void OnEntityStateChanged(object sender, EntityStateChangedEventArgs e)
-        //{
-        //    if (e.NewState == EntityState.Modified && e.Entry.Entity is IDbOperationTS entity)
-        //        entity.UpdatedDate = DateTime.Now;
-        //}
+        public DbSet<UserRating> UserRatings { get; set; }
+        public DbSet<EventRating> EventRatings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ApplicationUser>(entity =>
             {
+                entity.HasMany(e => e.UserRatings)
+                      .WithOne(ur => ur.User)
+                      .HasForeignKey(ur => ur.UserId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.ClientCascade);
+                entity.HasMany(e => e.UserReviews) 
+                      .WithOne(ur => ur.Reviewer)
+                      .HasForeignKey(ur => ur.ReviewerId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.ClientCascade);
+                entity.HasMany(e => e.EventRatings)
+                      .WithOne(er => er.Admin)
+                      .HasForeignKey(er => er.AdminId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(e => e.EventReviews)
+                      .WithOne(er => er.Reviewer)
+                      .HasForeignKey(er => er.ReviewerId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.ClientCascade);
                 entity.Property(e => e.CreatedDate)
                       .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)
@@ -34,6 +51,11 @@ namespace Unite.Data
             });
             modelBuilder.Entity<Event>(entity =>
             {
+                entity.HasMany(e => e.Ratings)
+                      .WithOne(er => er.Event)
+                      .HasForeignKey(er => er.EventId)
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.ClientCascade);
                 entity.Property(e => e.Scope)
                       .HasConversion<string>();
                 entity.Property(e => e.CreatedDate)
@@ -78,6 +100,30 @@ namespace Unite.Data
                       .HasForeignKey(e => e.RightSideId)
                       .IsRequired()
                       .OnDelete(DeleteBehavior.NoAction);
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<UserRating>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.ReviewerId });
+                entity.Property(e => e.Value)
+                      .IsRequired();
+                entity.Property(e => e.Review)
+                      .IsRequired();
+                entity.Property(e => e.CreatedDate)
+                      .HasDefaultValueSql("getdate()");
+                entity.Property(e => e.UpdatedDate)
+                      .HasDefaultValueSql("getdate()");
+            });
+            modelBuilder.Entity<EventRating>(entity =>
+            {
+                entity.HasKey(e => new { e.EventId, e.ReviewerId });
+                entity.Property(e => e.Value)
+                      .IsRequired();
+                entity.Property(e => e.Review)
+                      .IsRequired();
                 entity.Property(e => e.CreatedDate)
                       .HasDefaultValueSql("getdate()");
                 entity.Property(e => e.UpdatedDate)

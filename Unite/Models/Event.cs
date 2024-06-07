@@ -32,6 +32,7 @@ namespace Unite.Models
         [DisplayName("Admin")]
         public virtual ApplicationUser? Admin { get; set; }
         public virtual List<UserEvent>? Participants { get; set; }
+        public virtual List<EventRating>? Ratings { get; set; }
         [DisplayName("Opis")]
         public string? Description { get; set; }
         [DisplayName("Maks. liczba uczestników")]
@@ -44,6 +45,7 @@ namespace Unite.Models
     public class EventDTO : Event
     {
         public int NumOfParticipants { get; set; }
+        public double? AverageScore { get; set; }
         public EventDTO(Event @event)
         {
             Id = @event.Id;
@@ -55,6 +57,7 @@ namespace Unite.Models
             AdminId = @event.AdminId;
             Admin = @event.Admin;
             Participants = @event.Participants;
+            Ratings = @event.Ratings;
             Description = @event.Description;
             Size = @event.Size;
             CreatedDate = @event.CreatedDate;
@@ -66,6 +69,15 @@ namespace Unite.Models
             else
             {
                 NumOfParticipants = Participants.Where(p => p.State == UserEvent.UserEventState.Accepted).Count();
+            }
+            if (Ratings != null)
+            {
+                AverageScore = 0;
+                foreach(EventRating rating in Ratings)
+                {
+                    AverageScore += rating.Value;
+                }
+                AverageScore /= Ratings.Count;
             }
         }
     }
