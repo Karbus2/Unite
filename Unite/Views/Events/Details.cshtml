@@ -6,6 +6,8 @@
 
 @{
     ViewData["Title"] = "Szczegóły";
+    Guid userId = new Guid(_userManager.GetUserId(User));
+    UserEvent? userEvent = Model.Participants!.SingleOrDefault(p => p.ParticipantId == userId);
 }
 
 <h1>Szczegóły</h1>
@@ -93,10 +95,12 @@
                     Status uczestnictwa
                 </th>
                 <th></th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Participants)
+            @foreach (var item in Model!.Participants)
             {
                 <tr>
                     <td>
@@ -110,27 +114,53 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.State)
                     </td>
-                    <td>
-                        @if (item.Role != UserEvent.UserEventRole.Admin && Model.AdminId == new Guid(_userManager.GetUserId(User)))
-                        {
-                            @if (item.Role == UserEvent.UserEventRole.Participant)
+                    @if (userEvent != null)
+                    {
+                        <td>
+                            @if (item.Role != UserEvent.UserEventRole.Admin && Model.AdminId == userId)
                             {
-                                <form asp-controller="Events" asp-action="GrantMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
-                                    <button type="submit" class="btn btn-primary">
-                                        Mianuj Moderatorem
+                                @if (item.Role == UserEvent.UserEventRole.Participant)
+                                {
+                                    <form asp-controller="Events" asp-action="GrantMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                        <button type="submit" class="btn btn-primary">
+                                            Mianuj Moderatorem
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Events" asp-action="RevokeMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                        <button type="submit" class="btn btn-danger">
+                                            Zdegraduj
+                                        </button>
+                                    </form>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @if (Model.AdminId == userId && item.Role != UserEvent.UserEventRole.Admin)
+                            {
+                                <form asp-controller="Events" asp-action="Kick" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                    <button type="submit" class="btn btn-danger">
+                                        Wyrzuć
                                     </button>
                                 </form>
                             }
-                            else
+                            else if (userEvent.Role == UserEvent.UserEventRole.Moderator && item.Role == UserEvent.UserEventRole.Participant)
                             {
-                                <form asp-controller="Events" asp-action="RevokeMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
-                                    <button type="submit" class="btn btn-primary">
-                                        Zdegraduj
+                                <form asp-controller="Events" asp-action="Kick" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                    <button type="submit" class="btn btn-danger">
+                                        Wyrzuć
                                     </button>
                                 </form>
                             }
-                        }
-                    </td>
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                        <td></td>
+                    }
                     <td></td>
                 </tr>
             }

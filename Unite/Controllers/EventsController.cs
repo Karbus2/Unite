@@ -389,6 +389,47 @@ namespace Unite.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Kick(Guid? participantId, Guid? eventId, string returnUrl)
+        {
+            if (participantId == null || eventId == null)
+            {
+                return BadRequest();
+            }
+            UserEvent? userEvent = await _context.UserEvents.Include(e => e.Event)
+                                                            .SingleOrDefaultAsync(e => e.ParticipantId == participantId && e.EventId == eventId);
+            if (userEvent == null)
+            {
+                return NotFound();
+            }
+
+            Guid userId = new Guid(_userManager.GetUserId(User));
+
+            if (userEvent.Event == null)
+            {
+                return NotFound();
+            }
+            if(userEvent.Event.AdminId == userId)
+            {
+                _context.UserEvents.Remove(userEvent);
+                await _context.SaveChangesAsync();
+            }
+            else if(_context.UserEvents.Any(e => e.ParticipantId == userId && e.EventId == eventId && e.Role == UserEvent.UserEventRole.Moderator))
+            {
+                _context.UserEvents.Remove(userEvent);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> GrantMod(Guid? participantId, Guid? eventId, string returnUrl)
         {
             if (participantId == null || eventId == null)
