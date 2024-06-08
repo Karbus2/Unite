@@ -387,7 +387,68 @@ namespace Unite.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GrantMod(Guid? participantId, Guid? eventId, string returnUrl)
+        {
+            if (participantId == null || eventId == null)
+            {
+                return BadRequest();
+            }
+            UserEvent? userEvent = await _context.UserEvents.Include(e => e.Event)
+                                                            .SingleOrDefaultAsync(e => e.ParticipantId == participantId && e.EventId == eventId);
+            if (userEvent == null)
+            {
+                return NotFound();
+            }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (userEvent.Event == null || userEvent.Event.AdminId != userId)
+            {
+                return NotFound();
+            }
+            if(userId == participantId)
+            {
+                return BadRequest();
+            }
+            userEvent.Role = UserEvent.UserEventRole.Moderator;
+            await _context.SaveChangesAsync();
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RevokeMod(Guid? participantId, Guid? eventId, string returnUrl)
+        {
+            if (participantId == null || eventId == null)
+            {
+                return BadRequest();
+            }
+            UserEvent? userEvent = await _context.UserEvents.Include(e => e.Event)
+                                                            .SingleOrDefaultAsync(e => e.ParticipantId == participantId && e.EventId == eventId);
+            if (userEvent == null)
+            {
+                return NotFound();
+            }
+            Guid userId = new Guid(_userManager.GetUserId(User));
+            if (userEvent.Event == null || userEvent.Event.AdminId != userId)
+            {
+                return NotFound();
+            }
+            if (userId == participantId)
+            {
+                return BadRequest();
+            }
+            userEvent.Role = UserEvent.UserEventRole.Participant;
+            await _context.SaveChangesAsync();
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction(nameof(Index));
+        }
         private bool EventExists(Guid id)
         {
             return _context.Events.Any(e => e.Id == id);

@@ -44,7 +44,9 @@ namespace Unite.Models
     }
     public class EventDTO : Event
     {
+        [DisplayName("Liczba uczestników")]
         public int NumOfParticipants { get; set; }
+        [DisplayName("Średnia ocena spotkania")]
         public double? AverageScore { get; set; }
         public EventDTO(Event @event)
         {

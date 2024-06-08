@@ -76,7 +76,7 @@ namespace Unite.Controllers
                 {
                     return View(friendDTO);
                 }
-                if (currentUser.Events.Where(e => e.State == UserEvent.UserEventState.Accepted)
+                if (currentUser.Events.Where(e => e.Event!.End <= DateTime.Now && e.State == UserEvent.UserEventState.Accepted)
                                       .Select(e => e.Event)
                                       .Intersect(userToRate.Events.Where(e => e.State == UserEvent.UserEventState.Accepted)
                                                                   .Select(e => e.Event))

@@ -110,6 +110,27 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.State)
                     </td>
+                    <td>
+                        @if (item.Role != UserEvent.UserEventRole.Admin && Model.AdminId == new Guid(_userManager.GetUserId(User)))
+                        {
+                            @if (item.Role == UserEvent.UserEventRole.Participant)
+                            {
+                                <form asp-controller="Events" asp-action="GrantMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                    <button type="submit" class="btn btn-primary">
+                                        Mianuj Moderatorem
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Events" asp-action="RevokeMod" asp-route-participantId="@item.ParticipantId" asp-route-eventId="@item.EventId" asp-route-returnUrl="@(Context.Request.Path+Context.Request.QueryString.Value)" method="post">
+                                    <button type="submit" class="btn btn-primary">
+                                        Zdegraduj
+                                    </button>
+                                </form>
+                            }
+                        }
+                    </td>
                     <td></td>
                 </tr>
             }

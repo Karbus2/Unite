@@ -168,8 +168,8 @@ namespace Unite.Controllers
             {
                 return false;
             }
-            if (currentUser.Events.Where(e => e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event)
-                                  .Intersect(userToRate.Events.Where(e => e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event))
+            if (currentUser.Events.Where(e => e.Event!.End <= DateTime.Now && e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event)
+                                  .Intersect(userToRate.Events.Where(e => e.Event!.End <= DateTime.Now && e.State == UserEvent.UserEventState.Accepted).Select(e => e.Event))
                                   .Any())
             {
                 return true;
