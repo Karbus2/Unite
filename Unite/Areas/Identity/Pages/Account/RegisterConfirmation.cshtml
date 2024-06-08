@@ -1,0 +1,22 @@
+﻿@page
+@model RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Potwierdź rejestrację";
+}
+
+<h1>@ViewData["Title"]</h1>
+@{
+    if (@Model.DisplayConfirmAccountLink)
+    {
+<p>
+    Ta aplikacja nie posiada skonfigurowanego serwera poczty. Zastępczy link potwierdzający rejestrecję: <a id="confirm-link" href="@Model.EmailConfirmationUrl">Kliknij aby potwierdzić rejestrację</a>
+</p>
+    }
+    else
+    {
+<p>
+        Please check your email to confirm your account.
+</p>
+    }
+}
+
