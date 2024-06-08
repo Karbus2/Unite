@@ -64,7 +64,7 @@ namespace Unite.Controllers
             var @event = await _context.Events
                 .Include(e => e.Admin)
                 .AsSplitQuery()
-                .Include(e => e.Participants)
+                .Include(e => e.Participants!)
                 .ThenInclude(p => p.Participant)
                 .SingleOrDefaultAsync(m => m.Id == id);
 

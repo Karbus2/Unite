@@ -1,24 +1,22 @@
 ﻿@model Unite.Models.EventRating
 
 @{
-    ViewData["Title"] = "Edycja Oceny";
+    ViewData["Title"] = "Oceń wydarzeniee";
 }
 
-<h1>Ocena wydarzenia</h1>
+<h1>Oceń wydarzenie</h1>
 
-<h4>Edytuj</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Rate">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="EventId" />
-            <input type="hidden" asp-for="AdminId" />
-            <input type="hidden" asp-for="ReviewerId" />
-            <input type="hidden" asp-for="CreatedDate"/>
+            <input type="hidden" asp-for="EventId" class="form-control" value="@ViewData["EventId"]" />
+            <input type="hidden" asp-for="AdminId" class="form-control" value="@ViewData["AdminId"]">
+            <input type="hidden" asp-for="ReviewerId" class="form-control" value="@ViewData["ReviewerId"]" />
             <div class="form-group">
                 <label asp-for="Value" class="control-label"></label>
-                <input asp-for="Value" class="form-control" min="0" max="5"/>
+                <input asp-for="Value" class="form-control" min="0" max="5" />
                 <span asp-validation-for="Value" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -27,19 +25,14 @@
                 <span asp-validation-for="Review" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Zapisz" class="btn btn-primary" />
+                <input type="submit" value="Oceń" class="btn btn-primary" />
             </div>
-        </form>
-        <form asp-controller="EventRatings" asp-action="Delete" asp-route-id="@Model.EventId" method="post">
-            <button type="submit" class="btn btn-danger">
-                Usuń
-            </button>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Details" asp-controller="HistoryEvents" asp-route-id="@Model.EventId">Powrót do wydarzenia</a>
+    <a asp-action="Details" asp-controller="HistoryEvents" asp-route-id="@ViewData["EventId"]">Powrót do wydarzenia</a>
 </div>
 
 @section Scripts {

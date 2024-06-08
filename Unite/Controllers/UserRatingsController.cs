@@ -117,7 +117,7 @@ namespace Unite.Controllers
                 }
                 return RedirectToAction("Profile", "Friends", new { id = userRating.UserId });
             }
-            return RedirectToAction("Profile", "Friends", new { id = userRating.UserId });
+            return View(userRating);
         }
 
         // POST: UserRatings/Delete/5

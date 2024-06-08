@@ -17,7 +17,7 @@
             <input type="hidden" asp-for="CreatedDate" />
             <div class="form-group">
                 <label asp-for="Value" class="control-label"></label>
-                <input asp-for="Value" class="form-control" />
+                <input asp-for="Value" class="form-control" min="0" max="5"/>
                 <span asp-validation-for="Value" class="text-danger"></span>
             </div>
             <div class="form-group">

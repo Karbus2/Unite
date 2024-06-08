@@ -70,7 +70,7 @@ namespace Unite.Models
             {
                 NumOfParticipants = Participants.Where(p => p.State == UserEvent.UserEventState.Accepted).Count();
             }
-            if (Ratings != null)
+            if (Ratings != null && Ratings.Count > 0)
             {
                 AverageScore = 0;
                 foreach(EventRating rating in Ratings)
@@ -78,6 +78,10 @@ namespace Unite.Models
                     AverageScore += rating.Value;
                 }
                 AverageScore /= Ratings.Count;
+            }
+            else
+            {
+                AverageScore = null;
             }
         }
     }

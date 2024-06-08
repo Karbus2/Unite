@@ -53,10 +53,11 @@ namespace Unite.Controllers
             }
 
             var @event = await _context.Events
-                .Include(@event => @event.Admin)
+                .Include(e => e.Admin)
                 .AsSplitQuery()
-                .Include(e => e.Participants)
+                .Include(e => e.Participants!)
                 .ThenInclude(p => p.Participant)
+                .Include(e => e.Ratings)
                 .SingleOrDefaultAsync(m => m.Id == id);
             Guid userId = new Guid(_userManager.GetUserId(User));
             if (@event == null || @event.Participants == null)
